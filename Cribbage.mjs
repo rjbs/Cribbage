@@ -48,6 +48,23 @@ export class Card {
   }
 }
 
+export class ScoreBoard {
+  constructor () {
+    this._scores = [];
+  }
+
+  addScore(hit) {
+    this._scores.push(hit);
+  }
+
+  score() {
+    return {
+      score: this._scores.reduce((i, hit) => hit.score + i, 0),
+      board: this._scores, // This is now bad API. -- rjbs, 2022-07-23
+    };
+  }
+}
+
 export class Hand {
   #score;
   #scoreBoard;
@@ -59,7 +76,7 @@ export class Hand {
     this.starter = starter;
     this.cards = cards;
 
-    this.#scoreBoard = [];
+    this.#scoreBoard = new ScoreBoard();
     this.#didMulti = {};
     this.#didRun = {};
   }
@@ -120,7 +137,7 @@ export class Hand {
     const nobs = this.cards.find(c => c.rank === 'J' && c.suit === wantSuit);
 
     if (nobs) {
-      this.#scoreBoard.push({
+      this.#scoreBoard.addScore({
         type : "Nobs",
         cards: [ this.starter, nobs ],
         score: 1,
@@ -142,7 +159,7 @@ export class Hand {
         4: "Double Pair Royal",
       };
 
-      this.#scoreBoard.push({
+      this.#scoreBoard.addScore({
         type : typeName[set.length],
         subtype: set[0].rank,
         cards: set,
@@ -171,7 +188,7 @@ export class Hand {
         };
 
         this.#didRun[ set[0].totalOrder() ] = true;
-        this.#scoreBoard.push({
+        this.#scoreBoard.addScore({
           type : typeName[set.length],
           cards: set,
           score: set.length,
@@ -182,7 +199,7 @@ export class Hand {
 
   #considerFifteens(set) {
     if (set.reduce((i, c) => i + c.sumValue(), 0) === 15) {
-      this.#scoreBoard.push({
+      this.#scoreBoard.addScore({
         type : "Fifteen",
         cards: set,
         score: 2,
@@ -192,7 +209,7 @@ export class Hand {
 
   #considerFiveCardFlush(set) {
     if (set.length === 5 && this.#allLike(set, c => c.suit === set[0].suit)) {
-      this.#scoreBoard.push({
+      this.#scoreBoard.addScore({
         type : "Five Card Flush",
         cards: set,
         score: 5,
@@ -204,7 +221,7 @@ export class Hand {
     if ( this.starter.suit !== this.cards[0].suit
       && this.#allLike(this.cards, c => c.suit === this.cards[0].suit)
     ) {
-      this.#scoreBoard.push({
+      this.#scoreBoard.addScore({
         type : "Hand Flush",
         cards: this.cards,
         score: 4,
@@ -225,12 +242,7 @@ export class Hand {
       this.#considerFiveCardFlush(set);
     }
 
-    this.#score = {
-      score: this.#scoreBoard.reduce((i, hit) => hit.score + i, 0),
-      via  : this.#scoreBoard,
-    };
-
-    return this.#score;
+    return this.#scoreBoard.score();
   }
 
   toString() {
