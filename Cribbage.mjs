@@ -137,7 +137,11 @@ export class PrettyPrinter {
   }
 
   static #compactCardString(card) {
-    return(card.rank + _suit[ card.suit ].marker);
+    const colorer = card.suit === "Hearts" || card.suit === "Diamonds"
+                  ? chalk.red
+                  : chalk.blackBright;
+
+    return(colorer(card.rank + _suit[ card.suit ].marker));
   }
 
   static scoreString(scoreBoard) {
