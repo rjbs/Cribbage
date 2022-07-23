@@ -185,15 +185,12 @@ export class ScoreBoard {
 export class Hand {
   #scoreBoard;
 
-  #didMulti; // found a 2-4 card set of all one rank; key is rank
-  #didRun;   // found a 3-5 run; this is a Set with all cards
+  #didMulti = {};    // found a 2-4 card set of all one rank; key is rank
+  #didRun = new Set; // found a 3-5 run; this is a Set with all cards in runs
 
   constructor(starter, cards) {
     this.starter = starter;
     this.cards = cards;
-
-    this.#didMulti = {};
-    this.#didRun = new Set;
   }
 
   static ez (handString) {
@@ -293,7 +290,7 @@ export class Hand {
         }
       }
 
-      if (isRun && !set.find(c => this.#didRun.has(c))) {
+      if (isRun && !this.#allLike(set,c => this.#didRun.has(c))) {
         const typeName = {
           3: "Run of Three",
           4: "Run of Four",
