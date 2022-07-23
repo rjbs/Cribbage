@@ -6,6 +6,7 @@ const handStrings = [
   '5D  JD 5C 5S 5H',
   'AD  2D 3D 4D 5D',
   '9D  3D AS JS 8D',
+  '5D  3H 2D 4C 8S', // should be 8 not 11
 ];
 
 for (const handString of handStrings) {

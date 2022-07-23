@@ -186,14 +186,14 @@ export class Hand {
   #scoreBoard;
 
   #didMulti; // found a 2-4 card set of all one rank; key is rank
-  #didRun;   // found a 3-5 run; key is lowest card
+  #didRun;   // found a 3-5 run; this is a Set with all cards
 
   constructor(starter, cards) {
     this.starter = starter;
     this.cards = cards;
 
     this.#didMulti = {};
-    this.#didRun = {};
+    this.#didRun = new Set;
   }
 
   static ez (handString) {
@@ -284,9 +284,7 @@ export class Hand {
   }
 
   #considerRuns(set) {
-    // Using totalOrder here is weird, but will work.  I dunno, I just want to
-    // make something that works, okay? -- rjbs, 2022-07-21
-    if (set.length >= 3 && !this.#didRun[set[0].totalOrder()]) {
+    if (set.length >= 3) {
       let isRun = true;
       for (let i = 0; i < set.length - 1; i++) {
         if (set[i].runValue() !== set[i+1].runValue() - 1) {
@@ -295,14 +293,14 @@ export class Hand {
         }
       }
 
-      if (isRun) {
+      if (isRun && !set.find(c => this.#didRun.has(c))) {
         const typeName = {
           3: "Run of Three",
           4: "Run of Four",
           5: "Run of Five",
         };
 
-        this.#didRun[ set[0].totalOrder() ] = true;
+        set.forEach(c => this.#didRun.add(c));
         this.#scoreBoard.addScore({
           type : typeName[set.length],
           cards: set,
