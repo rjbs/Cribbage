@@ -1,3 +1,19 @@
+import chalk from 'chalk';
+
+const suitMarkerEmoji = {
+  Clubs: "♣️",
+  Diamonds: "♦️",
+  Hearts: "♥️",
+  Spades: "♠️",
+};
+
+const suitMarker = {
+  Clubs: "♣",
+  Diamonds: "♦",
+  Hearts: "♥",
+  Spades: "♠",
+};
+
 export class Card {
   constructor(rank, suit) {
     this.rank = rank;
@@ -26,47 +42,123 @@ export class Card {
   }
 
   totalOrder() {
-    const suitMarker = {
+    const suitValue = {
       Clubs: 1,
       Diamonds: 2,
       Hearts: 3,
       Spades: 4,
     };
 
-    return this.runValue() * 10 + suitMarker[this.suit];
+    return this.runValue() * 10 + suitValue[this.suit];
   }
 
   toString() {
-    const suitMarker = {
-      Clubs: "♣️",
-      Diamonds: "♦️",
-      Hearts: "♥️",
-      Spades: "♠️",
-    };
+    return(this.rank + suitMarkerEmoji[ this.suit ]);
+  }
+}
 
-    return(this.rank + suitMarker[ this.suit ]);
+export class PrettyPrinter {
+  static cardText(card) {
+    const template = `╭─────╮
+│R   │
+│  S  │
+│   R│
+╰─────╯`;
+
+    let rank = card.rank;
+    if (rank === "A") rank = " ";
+
+    let prettyRank = chalk.bold.whiteBright(rank);
+    let prettyRankLeft  = prettyRank;
+    let prettyRankRight = prettyRank;
+    if (rank !== "10") prettyRankLeft += " ";
+    if (rank !== "10") prettyRankRight = " " + prettyRankRight;
+
+    let prettySuit = suitMarker[card.suit];
+    if (card.suit === 'Hearts' || card.suit === 'Diamonds') {
+      prettySuit = chalk.redBright(prettySuit);
+    } else {
+      prettySuit = chalk.blackBright(prettySuit);
+    }
+
+    let cardText = template.replaceAll('S', prettySuit)
+                           .replace('R', prettyRankLeft)
+                           .replace('R', prettyRankRight);
+
+    return cardText;
+  }
+
+  static #appendBlocks(blocks) {
+    const blockLines = blocks.map(b => b.split(/\n/));
+
+    let appendedText = "";
+    for (const i in blockLines[0]) {
+      appendedText += blockLines.map(bl => bl[i]).join(" ");
+      appendedText += "\n";
+    }
+
+    return appendedText;
+  }
+
+  static handText(hand) {
+    let handText = this.cardText(hand.starter);
+    let spacer   = "   \n".repeat(5);
+    let blocks   = [
+      handText,
+      spacer,
+      ...hand.cards.map(c => this.cardText(c)),
+    ];
+
+    return this.#appendBlocks(blocks);
+  }
+
+  static #compactCardText(card) {
+    return(card.rank + suitMarker[ card.suit ]);
+  }
+
+  static scoreText(scoreBoard) {
+    let scoreText = "";
+
+    for (const hit of scoreBoard.hits) {
+      scoreText += " ".repeat(hit.score > 9 ? 6 : 7);
+      scoreText += `${hit.score}: ${hit.type}`;
+      scoreText += " ".repeat(20 - hit.type.length);
+      scoreText += hit.cards.map(c => this.#compactCardText(c)).join(" "),
+      scoreText += "\n";
+    }
+
+    scoreText += `TOTAL: ${scoreBoard.score}`;
+    return scoreText;
   }
 }
 
 export class ScoreBoard {
+  #finalized = false;
+
   constructor () {
     this._scores = [];
   }
 
   addScore(hit) {
+    if (this.#finalized) 1/0;
+
     this._scores.push(hit);
   }
 
-  score() {
-    return {
-      score: this._scores.reduce((i, hit) => hit.score + i, 0),
-      board: this._scores, // This is now bad API. -- rjbs, 2022-07-23
-    };
+  finalize() {
+    this.#finalized = true;
+  }
+
+  get hits() {
+    return [ ...this._scores ]; // Unhappy with this. -- rjbs, 2022-07-23
+  }
+
+  get score() {
+    return this._scores.reduce((i, hit) => hit.score + i, 0);
   }
 }
 
 export class Hand {
-  #score;
   #scoreBoard;
 
   #didMulti; // found a 2-4 card set of all one rank; key is rank
@@ -76,7 +168,6 @@ export class Hand {
     this.starter = starter;
     this.cards = cards;
 
-    this.#scoreBoard = new ScoreBoard();
     this.#didMulti = {};
     this.#didRun = {};
   }
@@ -230,7 +321,12 @@ export class Hand {
   }
 
   get score() {
-    if (this.#score !== undefined) return this.#score;
+    this.scoreBoard.score;
+  }
+
+  get scoreBoard() {
+    if (this.#scoreBoard !== undefined) return this.#scoreBoard;
+    this.#scoreBoard = new ScoreBoard()
 
     this.#considerNobs();
     this.#considerHandFlush();
@@ -242,7 +338,8 @@ export class Hand {
       this.#considerFiveCardFlush(set);
     }
 
-    return this.#scoreBoard.score();
+    /// TODO: finalize #scoreBoard
+    return this.#scoreBoard;
   }
 
   toString() {
