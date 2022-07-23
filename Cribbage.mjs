@@ -7,6 +7,43 @@ const _suit = {
   Spades:   { emoji: "♠️", marker: "♠", value: 4 },
 };
 
+const _ranks = [
+  "A",
+  "2", "3", "4", "5", "6", "7", "8", "9", "10",
+  "J", "Q", "K",
+];
+
+export class Deck {
+  constructor() {
+    this._cards = [];
+    for (const suit of Object.keys(_suit)) {
+      for (const rank of _ranks) {
+        this._cards.push(new Card(rank, suit));
+      }
+    }
+  }
+
+  shuffle() {
+    let newCards = [];
+    while (this._cards.length > 0) {
+      const next = Math.floor(Math.random() * this._cards.length);
+      newCards.push(...this._cards.splice(next, 1));
+    }
+
+    this._cards = newCards;
+  }
+
+  pick(n) {
+    if (n > this._cards.length) 1/0;
+    return this._cards.splice(0, n);
+  }
+
+  replace(cards) {
+    // Like many other bits, this does nothing to ensure you're not bringing in
+    // bogus cards. -- rjbs, 2022-07-23
+    this._cards = this._cards.concat(cards);
+  }
+}
 
 export class Card {
   constructor(rank, suit) {
