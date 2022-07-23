@@ -1,18 +1,12 @@
 import chalk from 'chalk';
 
-const suitMarkerEmoji = {
-  Clubs: "♣️",
-  Diamonds: "♦️",
-  Hearts: "♥️",
-  Spades: "♠️",
+const _suit = {
+  Clubs:    { emoji: "♣️", marker: "♣", value: 1 },
+  Diamonds: { emoji: "♦️", marker: "♦", value: 2 },
+  Hearts:   { emoji: "♥️", marker: "♥", value: 3 },
+  Spades:   { emoji: "♠️", marker: "♠", value: 4 },
 };
 
-const suitMarker = {
-  Clubs: "♣",
-  Diamonds: "♦",
-  Hearts: "♥",
-  Spades: "♠",
-};
 
 export class Card {
   constructor(rank, suit) {
@@ -42,18 +36,11 @@ export class Card {
   }
 
   totalOrder() {
-    const suitValue = {
-      Clubs: 1,
-      Diamonds: 2,
-      Hearts: 3,
-      Spades: 4,
-    };
-
-    return this.runValue() * 10 + suitValue[this.suit];
+    return this.runValue() * 10 + _suit[this.suit].value;
   }
 
   toString() {
-    return(this.rank + suitMarkerEmoji[ this.suit ]);
+    return(this.rank + _suit[ this.suit ].emoji);
   }
 }
 
@@ -74,7 +61,7 @@ export class PrettyPrinter {
     if (rank !== "10") prettyRankLeft += " ";
     if (rank !== "10") prettyRankRight = " " + prettyRankRight;
 
-    let prettySuit = suitMarker[card.suit];
+    let prettySuit = _suit[card.suit].marker;
     if (card.suit === 'Hearts' || card.suit === 'Diamonds') {
       prettySuit = chalk.redBright(prettySuit);
     } else {
@@ -113,7 +100,7 @@ export class PrettyPrinter {
   }
 
   static #compactCardText(card) {
-    return(card.rank + suitMarker[ card.suit ]);
+    return(card.rank + _suit[ card.suit ].marker);
   }
 
   static scoreText(scoreBoard) {
