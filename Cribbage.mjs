@@ -45,7 +45,7 @@ export class Card {
 }
 
 export class PrettyPrinter {
-  static cardText(card) {
+  static cardString(card) {
     const template = `╭─────╮
 │R   │
 │  S  │
@@ -68,54 +68,54 @@ export class PrettyPrinter {
       prettySuit = chalk.blackBright(prettySuit);
     }
 
-    let cardText = template.replaceAll('S', prettySuit)
+    let cardString = template.replaceAll('S', prettySuit)
                            .replace('R', prettyRankLeft)
                            .replace('R', prettyRankRight);
 
-    return cardText;
+    return cardString;
   }
 
   static #appendBlocks(blocks) {
     const blockLines = blocks.map(b => b.split(/\n/));
 
-    let appendedText = "";
+    let appendedString = "";
     for (const i in blockLines[0]) {
-      appendedText += blockLines.map(bl => bl[i]).join(" ");
-      appendedText += "\n";
+      appendedString += blockLines.map(bl => bl[i]).join(" ");
+      appendedString += "\n";
     }
 
-    return appendedText;
+    return appendedString;
   }
 
-  static handText(hand) {
-    let handText = this.cardText(hand.starter);
+  static handString(hand) {
+    let handString = this.cardString(hand.starter);
     let spacer   = "   \n".repeat(5);
     let blocks   = [
-      handText,
+      handString,
       spacer,
-      ...hand.cards.map(c => this.cardText(c)),
+      ...hand.cards.map(c => this.cardString(c)),
     ];
 
     return this.#appendBlocks(blocks);
   }
 
-  static #compactCardText(card) {
+  static #compactCardString(card) {
     return(card.rank + _suit[ card.suit ].marker);
   }
 
-  static scoreText(scoreBoard) {
-    let scoreText = "";
+  static scoreString(scoreBoard) {
+    let scoreString = "";
 
     for (const hit of scoreBoard.hits) {
-      scoreText += " ".repeat(hit.score > 9 ? 6 : 7);
-      scoreText += `${hit.score}: ${hit.type}`;
-      scoreText += " ".repeat(20 - hit.type.length);
-      scoreText += hit.cards.map(c => this.#compactCardText(c)).join(" "),
-      scoreText += "\n";
+      scoreString += " ".repeat(hit.score > 9 ? 6 : 7);
+      scoreString += `${hit.score}: ${hit.type}`;
+      scoreString += " ".repeat(20 - hit.type.length);
+      scoreString += hit.cards.map(c => this.#compactCardString(c)).join(" "),
+      scoreString += "\n";
     }
 
-    scoreText += `TOTAL: ${scoreBoard.score}`;
-    return scoreText;
+    scoreString += `TOTAL: ${scoreBoard.score}`;
+    return scoreString;
   }
 }
 
@@ -325,7 +325,7 @@ export class Hand {
       this.#considerFiveCardFlush(set);
     }
 
-    /// TODO: finalize #scoreBoard
+    this.#scoreBoard.finalize();
     return this.#scoreBoard;
   }
 

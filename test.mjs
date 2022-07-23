@@ -1,4 +1,4 @@
-import { Hand } from './Cribbage.mjs';
+import { Hand, PrettyPrinter } from './Cribbage.mjs';
 
 const handStrings = [
   '2H  JH QH 2D 5D',
@@ -10,8 +10,8 @@ const handStrings = [
 
 for (const handString of handStrings) {
   const hand = Hand.ez(handString);
-  console.log(hand.toString());
-  console.log(hand.score);
+  console.log(PrettyPrinter.handString(hand));
+  console.log(PrettyPrinter.scoreString(hand.scoreBoard));
   console.log("");
 }
 
