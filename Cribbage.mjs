@@ -411,3 +411,137 @@ export class Hand {
     return string;
   }
 }
+
+export class GuessResult {
+}
+
+export class CorrectGuessResult extends GuessResult {
+}
+
+export class IncorrectGuessResult extends GuessResult {
+  constructor(brief, details) {
+    super();
+    this.brief = brief;
+    this.details = details;
+  }
+}
+
+export class GuessingGame {
+  #deck = (new Deck).shuffle();
+
+  constructor() {
+    this.streak = 0;
+  }
+
+  prepNextTurn() {
+    const cards = this.#deck.pick(5);
+    this.currentHand = new Hand(cards[0], cards.slice(1));
+
+    this.#deck.replace(cards);
+    this.#deck.shuffle();
+  }
+
+  #handleCorrect() {
+    this.streak++;
+    return new CorrectGuessResult();
+  }
+
+  #handleIncorrect(brief, extra) {
+    this.streak = 0;
+
+    return new IncorrectGuessResult(brief, extra);
+  }
+
+  #handleNumericGuess(words) {
+    const guess = words.reduce((acc, w) => acc + parseInt(w), 0);
+    const want  = this.currentHand.scoreBoard.score;
+
+    if (guess === want) {
+      return this.#handleCorrect();
+    }
+
+    return this.#handleIncorrect(`You were off by ${Math.abs(guess - want)}`);
+  }
+
+  #handleHandGuess(words) {
+    const typeFor = {
+      n:  { type: "His Nobs",           score: 1 },
+      f:  { type: "Fifteen",            score: 2 },
+      s:  { type: "Hand Flush",         score: 4 },
+      S:  { type: "Five Card Flush",    score: 5 },
+      r3: { type: "Run of Three",       score: 3 },
+      r4: { type: "Run of Four",        score: 4 },
+      r5: { type: "Run of Five",        score: 5 },
+      p:  { type: "Pair",               score: 2 },
+      p2: { type: "Pair",               score: 2 },
+      p3: { type: "Pair Royal",         score: 6 },
+      p4: { type: "Double Pair Royal",  score: 12 },
+    };
+
+    const combined = words.join("");
+    const parse = Array.from(combined.matchAll(/(f|n|s|S|r[0-9]|p[2-4]?)/g))
+                       .map(m => m[0]);
+
+    if (combined.length !== parse.join("").length) {
+      return;
+    }
+
+    let guess = 0;
+    const expectedTypeCount = {};
+
+    for (const token of parse) {
+      if (!typeFor[token]) throw "Unexpected parse token!?";
+
+      guess += typeFor[token].score;
+      expectedTypeCount[ typeFor[token].type ] ||= 0;
+      expectedTypeCount[ typeFor[token].type ]++;
+    }
+
+    for (const hit of this.currentHand.scoreBoard.hits) {
+      expectedTypeCount[ hit.type ] ||= 0;
+      expectedTypeCount[ hit.type ]--;
+    }
+
+    const keys = Array.from(Object.keys(expectedTypeCount));
+    keys.sort();
+
+    let sawError = false;
+    let extra = "";
+
+    for (const type of keys) {
+      if (expectedTypeCount[type] == 0) continue;
+      sawError = true;
+
+      const verb = expectedTypeCount[type] > 0 ? 'overcounted' : 'missed';
+      extra += `${type}: You ${verb} ${Math.abs(expectedTypeCount[type])}\n`;
+    }
+
+    const want = this.currentHand.scoreBoard.score;
+    const message = guess == want
+                  ? "You got the right score, but the wrong hands."
+                  : `You were off by ${Math.abs(guess - want)}`;
+
+    if (!sawError && guess == want) {
+      return this.#handleCorrect();
+    }
+
+    return this.#handleIncorrect(message, extra);
+  }
+
+  handleGuess(input) {
+    const words = input.split(/\s+/);
+
+    if (!words.find(w => !w.match(/^[0-9]+$/))) {
+      // Guess Type One: "1" or "1 2 3" (meaning 6)
+      return this.#handleNumericGuess(words);
+    }
+
+    // Guess Type Two: fffn (meaning 3 fifteens and nobs)
+    const handGuessResult = this.#handleHandGuess(words);
+    if (handGuessResult !== undefined) {
+      return handGuessResult;
+    }
+
+    return;
+  }
+}
