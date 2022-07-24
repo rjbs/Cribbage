@@ -116,7 +116,6 @@ class GuessingGame {
     }
 
     return true;
-    return true;
   }
 
   handleGuess(input) {
