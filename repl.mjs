@@ -161,7 +161,23 @@ while (true) {
   if (guess === undefined) break;
 
   if (guess === "?" || guess === "help") {
-    console.log("\nHelp will go here.\n");
+    console.log(`
+You've got a cribbage hand in front of you.  Score it!
+
+You can just enter a number, or a bunch: "2 2 1" to guess 5.
+
+If you want to say you know exactly the melds in your hand, great!  You can
+enter them in compact notation, like "p3n" for "a Pair Royal and His Nobs".
+You can put spaces between codes or not, it's up to you!  Here they are:
+
+  n - his nobs
+  f - fifteen
+  s - a flush in the hand (but not the starter)
+  S - a flush across all five cards
+  r[3-5] - a run of 3, 4, or 5 cards; you need the number
+  p[2-4] - a "pair" of 2, 3, or 4 cards; if no number, it's a pair
+`);
+
     continue;
   }
 
