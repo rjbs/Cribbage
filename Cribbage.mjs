@@ -138,7 +138,7 @@ export class PrettyPrinter {
 
   static #compactCardString(card) {
     const colorer = card.suit === "Hearts" || card.suit === "Diamonds"
-                  ? chalk.red
+                  ? chalk.redBright
                   : chalk.blackBright;
 
     return(colorer(card.rank + _suit[ card.suit ].marker));
