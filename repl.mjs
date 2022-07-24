@@ -70,7 +70,6 @@ class GuessingGame {
                        .map(m => m[0]);
 
     if (combined.length !== parse.join("").length) {
-      console.log("\nSorry, something's weird about your guess.\n");
       return false;
     }
 
@@ -131,7 +130,6 @@ class GuessingGame {
       return true;
     }
 
-    console.log("❓ I couldn't understand your guess.");
     return false;
   }
 }
@@ -181,7 +179,10 @@ You can put spaces between codes or not, it's up to you!  Here they are:
 
     console.log(chalk.blackBright("┄".repeat(60)));
     game.prepNextTurn();
+    continue;
   }
+
+  console.log("\n❓ I couldn't understand you, sorry!\n");
 }
 
 console.log("\nOkay, have fun, bye!");

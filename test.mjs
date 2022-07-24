@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { Hand, PrettyPrinter } from './Cribbage.mjs';
 
 const handStrings = [
@@ -14,6 +15,7 @@ for (const handString of handStrings) {
   const hand = Hand.ez(handString);
   console.log(PrettyPrinter.handString(hand));
   console.log(PrettyPrinter.scoreString(hand.scoreBoard));
+  console.log(chalk.blackBright("┄".repeat(48)));
   console.log("");
 }
 
