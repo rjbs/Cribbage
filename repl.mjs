@@ -2,6 +2,20 @@ import chalk from 'chalk';
 import prompts from 'prompts';
 import { Deck, Hand, PrettyPrinter } from './Cribbage.mjs';
 
+class GuessResult {
+}
+
+class CorrectGuessResult extends GuessResult {
+}
+
+class IncorrectGuessResult extends GuessResult {
+  constructor(brief, details) {
+    super();
+    this.brief = brief;
+    this.details = details;
+  }
+}
+
 class GuessingGame {
   #deck = (new Deck).shuffle();
 
@@ -17,35 +31,26 @@ class GuessingGame {
     this.#deck.shuffle();
   }
 
-  #handleRight() {
+  #handleCorrect() {
     this.streak++;
-    console.log(`\n⭐️ You got it! Your streak is now: ${chalk.greenBright(this.streak)}\n`);
+    return new CorrectGuessResult();
   }
 
-  #handleWrong(brief, extra) {
+  #handleIncorrect(brief, extra) {
     this.streak = 0;
-    console.log(`\n❌ Nope!${brief.length ? (" " + brief) : ""}\n`);
 
-    if (extra) {
-      console.log(`${extra}\n`);
-    }
+    return new IncorrectGuessResult(brief, extra);
   }
 
   #handleNumericGuess(words) {
     const guess = words.reduce((acc, w) => acc + parseInt(w), 0);
     const want  = this.currentHand.scoreBoard.score;
 
-    if (words.length > 1) {
-      console.log(`You guessed ${guess}.`);
-    }
-
     if (guess === want) {
-      this.#handleRight();
-    } else {
-      this.#handleWrong(`You were off by ${Math.abs(guess - want)}`);
+      return this.#handleCorrect();
     }
 
-    return true;
+    return this.#handleIncorrect(`You were off by ${Math.abs(guess - want)}`);
   }
 
   #handleHandGuess(words) {
@@ -68,7 +73,7 @@ class GuessingGame {
                        .map(m => m[0]);
 
     if (combined.length !== parse.join("").length) {
-      return false;
+      return;
     }
 
     let guess = 0;
@@ -107,12 +112,10 @@ class GuessingGame {
                   : `You were off by ${Math.abs(guess - want)}`;
 
     if (!sawError && guess == want) {
-      this.#handleRight();
-    } else {
-      this.#handleWrong(message, extra);
+      return this.#handleCorrect();
     }
 
-    return true;
+    return this.#handleIncorrect(message, extra);
   }
 
   handleGuess(input) {
@@ -123,12 +126,13 @@ class GuessingGame {
       return this.#handleNumericGuess(words);
     }
 
-    if (this.#handleHandGuess(words)) {
-      // Guess Type Two: fffn (meaning 3 fifteens and nobs)
-      return true;
+    // Guess Type Two: fffn (meaning 3 fifteens and nobs)
+    const handGuessResult = this.#handleHandGuess(words);
+    if (handGuessResult !== undefined) {
+      return handGuessResult;
     }
 
-    return false;
+    return;
   }
 }
 
@@ -177,17 +181,35 @@ You can put spaces between codes or not, it's up to you!  Here they are:
     continue;
   }
 
-  if (game.handleGuess(guess)) {
-    console.log(PrettyPrinter.scoreString(game.currentHand.scoreBoard));
-    console.log("");
+  const result = game.handleGuess(guess);
 
-    console.log(chalk.blackBright("┄".repeat(60)));
-    game.prepNextTurn();
-    showedHand = false;
+  if (result === undefined) {
+    console.log("\n❓ I couldn't understand you, sorry!\n");
     continue;
   }
 
-  console.log("\n❓ I couldn't understand you, sorry!\n");
+  if (!(result instanceof GuessResult)) {
+    throw `Expected a GuessResult but got ${result}`;
+  }
+
+  if (result instanceof CorrectGuessResult) {
+    console.log(`\n⭐️ You got it! Your streak is now: ${chalk.greenBright(game.streak)}\n`);
+  } else if (result instanceof IncorrectGuessResult) {
+    console.log(`\n❌ Nope!${result.brief.length ? (" " + result.brief) : ""}\n`);
+
+    if (result.extra) {
+      console.log(`${extra}\n`);
+    }
+  } else {
+    throw `How confusing, you got a guess result, but it's neither correct nor incorrect…`;
+  }
+
+  console.log(PrettyPrinter.scoreString(game.currentHand.scoreBoard));
+  console.log("");
+
+  console.log(chalk.blackBright("┄".repeat(60)));
+  game.prepNextTurn();
+  showedHand = false;
 }
 
 console.log("\nOkay, have fun, bye!");
