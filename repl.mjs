@@ -1,11 +1,5 @@
-import * as readline from 'node:readline';
+import prompts from 'prompts';
 import { Deck, Hand, PrettyPrinter } from './Cribbage.mjs';
-
-const rl = readline.createInterface({
-  input : process.stdin,
-  output: process.stdout,
-  prompt: '> ',
-});
 
 function lineToHand(line) {
   const hand = Hand.ez(line);
@@ -34,12 +28,18 @@ function upNext() {
 
 upNext();
 
-rl.on('close', () => { console.log("\n\nOkay, have fun, bye!") });
+while (true) {
+  let { guess } = await prompts({
+    type: 'text',
+    name: 'guess',
+    message: 'Your guess?'
+  });
 
-rl.on('line', (rawLine) => {
-  const line = rawLine.trim().toUpperCase();
+  if (guess === undefined) break;
 
-  if (line == targetScoreBoard.score) {
+  guess = guess.trim().toUpperCase();
+
+  if (guess == targetScoreBoard.score) {
     console.log("GREAT JOB!");
   } else {
     console.log("Nope!");
@@ -51,6 +51,6 @@ rl.on('line', (rawLine) => {
   upNext();
 
   // This seems wild, probably I want to hang this onto an event loop...
-  rl.prompt();
-}).prompt();
+}
 
+console.log("\nOkay, have fun, bye!");
