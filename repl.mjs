@@ -13,8 +13,6 @@ class GuessingGame {
     const cards = this.#deck.pick(5);
     this.currentHand = new Hand(cards[0], cards.slice(1));
 
-    console.log(PrettyPrinter.handString(this.currentHand));
-
     this.#deck.replace(cards);
     this.#deck.shuffle();
   }
@@ -137,8 +135,14 @@ class GuessingGame {
 const game = new GuessingGame;
 
 game.prepNextTurn();
+let showedHand = false;
 
 while (true) {
+  if (!showedHand) {
+    console.log(PrettyPrinter.handString(game.currentHand));
+    showedHand = false;
+  }
+
   let { guess } = await prompts({
     type: 'text',
     name: 'guess',
@@ -179,6 +183,7 @@ You can put spaces between codes or not, it's up to you!  Here they are:
 
     console.log(chalk.blackBright("┄".repeat(60)));
     game.prepNextTurn();
+    showedHand = false;
     continue;
   }
 
