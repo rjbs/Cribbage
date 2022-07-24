@@ -180,16 +180,14 @@ export class PrettyPrinter {
       scoreString += "\n";
     }
 
-    if (scoreBoard.hits.length !== 1) {
-      if (scoreBoard.hits.length !== 0) {
-        scoreString += chalk.blackBright("  " + "─".repeat(44)) + "\n";
-      }
-
-      scoreString += " ".repeat(23);
-      scoreString += `TOTAL ${chalk.blackBright("..............")}`;
-      scoreString += " ".repeat(scoreBoard.score > 9 ? 1 : 2);
-      scoreString += `${scoreBoard.score}\n`;
+    if (scoreBoard.hits.length !== 0) {
+      scoreString += chalk.blackBright("  " + "─".repeat(44)) + "\n";
     }
+
+    scoreString += " ".repeat(23);
+    scoreString += `TOTAL ${chalk.blackBright("..............")}`;
+    scoreString += " ".repeat(scoreBoard.score > 9 ? 1 : 2);
+    scoreString += `${scoreBoard.score}\n`;
 
     return scoreString;
   }
