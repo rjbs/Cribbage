@@ -32,6 +32,8 @@ function upNext() {
   deck.shuffle();
 }
 
+upNext();
+
 rl.on('close', () => { console.log("\n\nOkay, have fun, bye!") });
 
 rl.on('line', (rawLine) => {
@@ -50,8 +52,5 @@ rl.on('line', (rawLine) => {
 
   // This seems wild, probably I want to hang this onto an event loop...
   rl.prompt();
-});
-
-upNext();
-rl.prompt();
+}).prompt();
 
