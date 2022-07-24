@@ -289,7 +289,7 @@ export class Hand {
 
     if (nobs) {
       this.#scoreBoard.addScore({
-        type : "Nobs",
+        type : "His Nobs",
         cards: [ this.starter, nobs ],
         score: 1,
       });

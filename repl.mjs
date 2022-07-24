@@ -52,7 +52,7 @@ class GuessingGame {
 
   #handleHandGuess(words) {
     const typeFor = {
-      n:  { type: "Nobs",               score: 1 },
+      n:  { type: "His Nobs",           score: 1 },
       f:  { type: "Fifteen",            score: 2 },
       s:  { type: "Hand Flush",         score: 4 },
       S:  { type: "Five Card Flush",    score: 5 },
