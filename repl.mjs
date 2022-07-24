@@ -130,6 +130,8 @@ class GuessingGame {
   }
 
   handleGuess(input) {
+    if (input.length === 0) return false;
+
     const words = input.split(/\s+/);
 
     if (!words.find(w => !w.match(/^[0-9]+$/))) {
