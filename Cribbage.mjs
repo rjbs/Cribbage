@@ -386,7 +386,6 @@ export class Hand {
     if (this.#scoreBoard !== undefined) return this.#scoreBoard;
     this.#scoreBoard = new ScoreBoard()
 
-    this.#considerNobs();
     this.#considerHandFlush();
 
     for (const set of this.#sortedSubsets) {
@@ -395,6 +394,8 @@ export class Hand {
       this.#considerFifteens(set);
       this.#considerFiveCardFlush(set);
     }
+
+    this.#considerNobs();
 
     this.#scoreBoard.finalize();
     return this.#scoreBoard;
