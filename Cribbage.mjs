@@ -31,6 +31,7 @@ export class Deck {
     }
 
     this._cards = newCards;
+    return this;
   }
 
   pick(n) {
