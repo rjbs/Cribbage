@@ -2,16 +2,6 @@ import chalk from 'chalk';
 import prompts from 'prompts';
 import { Deck, Hand, PrettyPrinter } from './Cribbage.mjs';
 
-function lineToHand(line) {
-  const hand = Hand.ez(line);
-
-  // console.log(PrettyPrinter.handString(hand));
-  // console.log(PrettyPrinter.scoreString(hand.scoreBoard));
-  // console.log("");
-
-  return hand;
-}
-
 class GuessingGame {
   #deck = (new Deck).shuffle();
 
