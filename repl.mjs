@@ -72,6 +72,11 @@ while (true) {
 
   if (guess === undefined) break;
 
+  if (guess === "?" || guess === "help") {
+    console.log("\nHelp will go here.\n");
+    continue;
+  }
+
   if (game.handleGuess(guess.trim().toUpperCase())) {
     console.log(chalk.blackBright("┄".repeat(60)));
     game.prepNextTurn();
