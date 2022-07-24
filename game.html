@@ -1,0 +1,54 @@
+<html>
+
+  <div id='game'>
+    <span id='starter'>?</span>
+    <span>&nbsp;</span>
+    <span id='card1'>?</span>
+    <span id='card2'>?</span>
+    <span id='card3'>?</span>
+    <span id='card4'>?</span>
+
+    <input id='input' type='text' />
+    <button id='guess'>Guess</button>
+  </div>
+
+  <script type='module'>
+  import { GuessingGame, CorrectGuessResult, IncorrectGuessResult }
+    from './Cribbage.mjs';
+  const game = new GuessingGame();
+  game.prepNextTurn();
+
+  document.getElementById('starter')
+          .innerText = game.currentHand.starter.toString();
+
+  for (let i = 0; i <= 3; i++) {
+    document.getElementById(`card${i + 1}`).innerText = game.currentHand.cards[i].toString();
+  }
+
+  document.getElementById('guess').addEventListener(
+    'click',
+    () => {
+      let guess = document.getElementById('input').value;
+      if (guess.length) {
+        const result = game.handleGuess(guess);
+
+        if (result instanceof CorrectGuessResult) {
+          const element = document.createElement('div');
+          element.innerText = `Your guess (${guess}) was RIGHT`;
+          document.getElementById('game').appendChild(element);
+        } else if (result instanceof IncorrectGuessResult) {
+          const element = document.createElement('div');
+          element.innerText = `Your guess (${guess}) was WRONG`;
+          document.getElementById('game').appendChild(element);
+        } else {
+          const element = document.createElement('div');
+          element.innerText = `Your guess (${guess}) was WEIRD`;
+          document.getElementById('game').appendChild(element);
+          console.log(`weird result: ${result}`)
+        }
+      }
+      return false;
+    }
+  );
+  </script>
+</html>
