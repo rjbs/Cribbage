@@ -120,8 +120,6 @@ class GuessingGame {
   }
 
   handleGuess(input) {
-    if (input.length === 0) return false;
-
     const words = input.split(/\s+/);
 
     if (!words.find(w => !w.match(/^[0-9]+$/))) {
@@ -152,6 +150,11 @@ while (true) {
 
   if (guess === undefined) break;
 
+  guess = guess.trim();
+
+  // Empty string is just "oops, try again".
+  if (guess.length === 0) continue;
+
   if (guess === "?" || guess === "help") {
     console.log(`
 You've got a cribbage hand in front of you.  Score it!
@@ -173,7 +176,7 @@ You can put spaces between codes or not, it's up to you!  Here they are:
     continue;
   }
 
-  if (game.handleGuess(guess.trim())) {
+  if (game.handleGuess(guess)) {
     console.log(PrettyPrinter.scoreString(game.currentHand.scoreBoard));
     console.log("");
 
