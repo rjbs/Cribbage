@@ -3,8 +3,10 @@ import prompts from 'prompts';
 
 import {
   GuessingGame, GuessResult, CorrectGuessResult, IncorrectGuessResult,
-  Deck, Hand, PrettyPrinter
+  Deck, Hand
 } from './Cribbage.mjs';
+
+import { PrettyPrinter } from './PrettyPrinter.mjs';
 
 const game = new GuessingGame;
 
